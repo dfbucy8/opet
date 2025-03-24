@@ -2,6 +2,7 @@
 name: teswrt
 
 on:
+  repository_dispatch:
 #  schedule:
 #    - cron: "0 16 * * 1"
   workflow_dispatch:
