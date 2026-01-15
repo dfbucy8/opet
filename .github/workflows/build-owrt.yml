@@ -1,6 +1,7 @@
 
 name: teswrt
-
+permissions:
+  contents: write
 on:
   repository_dispatch:
 #  schedule:
@@ -18,11 +19,6 @@ env:
   CONFIG_FILE: configs/immortalwrt/immortalwrt.config
   DIY_P1_SH: configs/immortalwrt/diy-z1.sh
   DIY_P2_SH: configs/immortalwrt/diy-arm.sh
-  UPLOAD_BIN_DIR: false
-  UPLOAD_FIRMWARE: false
-  UPLOAD_COWTRANSFER: false
-  UPLOAD_WETRANSFER: false
-  UPLOAD_RELEASE: false
   TZ: Asia/Shanghai
 
 jobs:
@@ -174,7 +170,7 @@ jobs:
         echo "{status}={success}" >> $GITHUB_OUTPUT
 
     - name: Package Armvirt as OpenWrt
-      uses: ophub/amlogic-s9xxx-openwrt@main
+      uses: ophub/amlogic-s9xxx-openwrt@v1
       with:
         openwrt_path: openwrt/bin/targets/*/*/*rootfs.tar.gz
         openwrt_board: s905d_s912_s905x3-hk1
@@ -184,10 +180,10 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         name: iwrt ${{ env.DATE }}
-        tag: ${{ env.TAG_DATE }}
+        tag: ${{ env.TAG_DATE }}-${{ github.run_number }}
         artifacts: ${{ env.PACKAGED_OUTPUTPATH }}/*.img.gz
-        allowUpdates: true
-        removeArtifacts: true
+        allowUpdates: false
+        removeArtifacts: false
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
           * Default IP: 192.168.1.1
@@ -204,11 +200,6 @@ jobs:
       CONFIG_FILE: configs/immortalwrt/immortalx86.config
       DIY_P1_SH: configs/immortalwrt/diy-z1.sh
       DIY_P2_SH: configs/immortalwrt/diy-86.sh
-      UPLOAD_BIN_DIR: false
-      UPLOAD_FIRMWARE: false
-      UPLOAD_COWTRANSFER: false
-      UPLOAD_WETRANSFER: false
-      UPLOAD_RELEASE: false
       TZ: Asia/Shanghai
 
     steps:
@@ -353,10 +344,10 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         name: iwrtx86 ${{ env.PRODUCT_NAME }}${{ env.DATE }}
-        tag: ${{ env.TAG_DATE }}
+        tag: x86-${{ env.TAG_DATE }}-${{ github.run_number }}
         artifacts: ${{ env.FIRMWARE }}/*.img.gz
-        allowUpdates: true
-        removeArtifacts: true
+        allowUpdates: false
+        removeArtifacts: false
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
           * Default IP: 192.168.1.1
@@ -371,18 +362,9 @@ jobs:
     steps:
 
       - name: Delete workflow runs
-        uses: Mattraks/delete-workflow-runs@main
+        uses: Mattraks/delete-workflow-runs@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
           retain_days: 20
           keep_minimum_runs: 1
-          
-      - name: Remove old Releases
-        uses: dev-drprasad/delete-older-releases@master
-        with:
-          repo: ${{ github.repository }}
-          keep_latest: 300
-          delete_tags: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
