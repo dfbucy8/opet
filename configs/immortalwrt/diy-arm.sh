@@ -25,6 +25,8 @@ sed -i 's/filter_aaaa	1/filter_aaaa	0/g' package/network/services/dnsmasq/files/
 #rm -rf feeds/packages/devel/gn
 #rm -rf feeds/packages/utils/tini
 #rm -rf feeds/luci/protocols/luci-proto-ppp
+rm -rf package/luci-app-amlogic
+git clone https://github.com/ophub/luci-app-amlogic.git package/luci-app-amlogic
 rm -rf feeds/packages/lang/golang
 git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
 git clone https://github.com/gdy666/luci-app-lucky.git package/lucky
