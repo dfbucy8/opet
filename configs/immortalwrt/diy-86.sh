@@ -35,3 +35,21 @@ git clone https://github.com/gdy666/luci-app-lucky.git package/lucky
 # cpufreq
 #sed -i 's/LUCI_DEPENDS.*/LUCI_DEPENDS:=\@\(arm\|\|aarch64\)/g' feeds/luci/applications/luci-app-cpufreq/Makefile
 #sed -i 's/services/system/g' feeds/luci/applications/luci-app-cpufreq/luasrc/controller/cpufreq.lua
+
+# 修复 dockerd 29.1.1 x86_64 编译时附属程序不存在导致 cp: cannot stat ''
+mkdir -p feeds/packages/utils/dockerd/patches
+
+cat > feeds/packages/utils/dockerd/patches/100-fix-binary-daemon.patch <<'EOF'
+--- a/hack/make/binary-daemon
++++ b/hack/make/binary-daemon
+@@ -13,8 +13,10 @@
+ 	fi
+ 	echo "Copying nested executables into $dir"
+ 	for file in containerd containerd-shim-runc-v2 ctr runc docker-init rootlesskit dockerd-rootless.sh dockerd-rootless-setuptool.sh; do
+-		cp -f "$(command -v "$file")" "$dir/"
++		if command -v "$file" >/dev/null 2>&1; then
++			cp -f "$(command -v "$file")" "$dir/"
++		fi
+ 	done
+ 	# vpnkit might not be available for the target platform, see vpnkit stage in
+EOF
